@@ -1,0 +1,5 @@
+name,type,rarity,minDefense,maxDefense,durability
+Quilted Armor,chest,1,10,15,14
+Leather Armor,chest,2,16,20,20
+Cap,helm,2,5,8,10
+Iron Helm,helm,1,10,14,25

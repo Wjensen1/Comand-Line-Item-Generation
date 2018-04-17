@@ -1,0 +1,6 @@
+name,type,rarity,minDam,maxDam,speed,durability
+Short Sword,sword,1,2,6,50,15
+Long Sword,sword,2,3,7,40,20
+Bastard Sword,sword,2,3,8,60,18
+Short Bow,bow,1,2,3,0,20
+Long Bow,bow,2,2,4,0,25
