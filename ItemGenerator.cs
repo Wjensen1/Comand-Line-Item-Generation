@@ -30,7 +30,26 @@ namespace CommandLine
 
 		static string dataFolder = "dataFiles\\";
 
-		static float magicFind = 1;
+		//range 0 - 400
+		private float _magicFind = 100;
+		public float magicFind
+		{
+			get
+			{
+				return _magicFind;
+			}
+			set
+			{
+				if (value <= 0)
+				{
+					value = 0;
+				}else if(value >= 400)
+				{
+					value = 400;
+				}
+				_magicFind = value;
+			}
+		}
 
 		//constructor
 		public ItemGenerator()
@@ -229,18 +248,39 @@ namespace CommandLine
 
 		Item GenerateByTreasureClass(string tc)
 		{
+			string specialType = "";
 			switch (tc)
 			{
 				case "weapon":
-					return GenerateWeapon();
+					specialType = GenerateSpecialType();
+					return GenerateWeapon(specialType);
 				case "armor":
-					return GenerateArmor();
+					specialType = GenerateSpecialType();
+					return GenerateArmor(specialType);
 				default:
 					return new Item(tc);
 			}
 		}
 
-		Item GenerateWeapon()
+		string GenerateSpecialType()
+		{
+			string output = "";
+			float normalRarity = 1;
+			float magicRarity = 0.1f * (1 + magicFind * 0.01f);
+			float total = normalRarity + magicRarity;
+
+			float rand = (float)r.NextDouble() * (total);
+			if(rand <= normalRarity)
+			{
+				output = "normal";
+			}else
+			{
+				output = "magic";
+			}
+			return output;
+		}
+
+		Item GenerateWeapon(string specialType)
 		{
 			//PrintToConsole("entered GenerateWeapon()");
 			Weapon output;
@@ -267,12 +307,12 @@ namespace CommandLine
 			int maxDamage = Convert.ToInt32(weapons[weaponsDictionary["maxDam"], index]);
 			int speed = Convert.ToInt32(weapons[weaponsDictionary["speed"], index]);
 			int durability = Convert.ToInt32(weapons[weaponsDictionary["durability"], index]);
-			output = new CommandLine.Weapon(type, name, minDamage, maxDamage, speed, durability);
+			output = new CommandLine.Weapon(specialType, type, name, minDamage, maxDamage, speed, durability);
 
 			return output;
 		}
 
-		Item GenerateArmor()
+		Item GenerateArmor(string specialType)
 		{
 			Armor output;
 			//type list
@@ -294,7 +334,7 @@ namespace CommandLine
 			int maxDefense = Convert.ToInt32(armor[armorDictionary["maxDefense"], index]);
 			int defense = r.Next(minDefense, maxDefense + 1);
 			int durability = Convert.ToInt32(armor[armorDictionary["durability"], index]);
-			output = new Armor(type, name, defense, durability);
+			output = new Armor(specialType, type, name, defense, durability);
 
 			return output;
 		}
@@ -324,11 +364,14 @@ namespace CommandLine
 	public class Weapon: Item
 	{
 		//stats
+
+		//normal | magic | rare | unique | set
+		public readonly string specialType;
 		public readonly int minDamage;
 		public readonly int maxDamage;
 		public readonly int speed;
 		public readonly int durability;
-		int _currentDurability;
+		private int _currentDurability;
 		public int currentDurability
 		{
 			get
@@ -349,8 +392,9 @@ namespace CommandLine
 			}
 		}
 
-		public Weapon(string inputType, string inputName, int inputMinDam, int inputMaxDam, int inputSpeed, int inputDurability, string inputTreasureClass = "weapon") : base(inputTreasureClass)
+		public Weapon(string inputSpecialType, string inputType, string inputName, int inputMinDam, int inputMaxDam, int inputSpeed, int inputDurability, string inputTreasureClass = "weapon") : base(inputTreasureClass)
 		{
+			specialType = inputSpecialType;
 			type = inputType;
 			name = inputName;
 			minDamage = inputMinDam;
@@ -368,7 +412,7 @@ namespace CommandLine
 			//Damage: min - max
 			//Speed: speed
 			//Durability: 
-			string output = name + '\n' + treasureClass + " - " + type + '\n' + "Damage: " + minDamage + " - " + maxDamage + '\n' + "Speed: " + speed + '\n' + "Durability: " + currentDurability + "/" + durability;
+			string output = specialType + '\n' + name + '\n' + treasureClass + " - " + type + '\n' + "Damage: " + minDamage + " - " + maxDamage + '\n' + "Speed: " + speed + '\n' + "Durability: " + currentDurability + "/" + durability;
 			return output;
 		}
 	}
@@ -376,9 +420,12 @@ namespace CommandLine
 	public class Armor : Item
 	{
 		//stats
-		public int defense;
-		public int durability;
-		int _currentDurability;
+
+		//normal | magic | rare | unique | set
+		public readonly string specialType;
+		public readonly int defense;
+		public readonly int durability;
+		private int _currentDurability;
 		public int currentDurability
 		{
 			get
@@ -400,8 +447,9 @@ namespace CommandLine
 			}
 		}
 
-		public Armor(string inputType, string inputName, int inputDefense, int inputDurability, string inputTreasureClass = "armor") : base(inputTreasureClass)
+		public Armor(string inputSpecialType, string inputType, string inputName, int inputDefense, int inputDurability, string inputTreasureClass = "armor") : base(inputTreasureClass)
 		{
+			specialType = inputSpecialType;
 			type = inputType;
 			name = inputName;
 			defense = inputDefense;
@@ -416,7 +464,7 @@ namespace CommandLine
 			//treasure class - type
 			//Defense
 			//Durability
-			string output = name + '\n' + treasureClass + " - " + type + '\n' + "Defense: " + defense + '\n' + "Durability: " + currentDurability + "/" + durability;
+			string output = specialType + '\n' + name + '\n' + treasureClass + " - " + type + '\n' + "Defense: " + defense + '\n' + "Durability: " + currentDurability + "/" + durability;
 			return output;
 		}
 	}
